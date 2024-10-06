@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Belongs to Quoc Chien</title>
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/R0JCgyjD/IMG-1369.jpg">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://i.postimg.cc/YS66JLHY/8-A29-E522-C260-419-E-87-B4-4-DBDFD2-A1326.gif');
+            background-size: cover;
+            color: #fff;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            overflow: hidden;
+            padding: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Hiệu ứng tuyết rơi */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* Phần chứa hình ảnh chuyển động */
+.image-carousel {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.image-carousel-track {
+    display: flex;
+    width: max-content; /* Thay đổi để chiều rộng linh hoạt dựa trên số lượng ảnh */
+    animation: slide 20s linear infinite; /* Vẫn giữ hiệu ứng slide */
+}
+
+.music-player {
+    flex-grow: 1; /* Cho phép phần này mở rộng */
+    overflow-y: auto; /* Cho phép cuộn dọc nếu có nhiều bài hát */
+    max-height: 60vh; /* Giới hạn chiều cao để không lấn vào ảnh chuyển động */
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%); /* Dịch chuyển một nửa tổng chiều rộng */
+    }
+}
+
+.carousel-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 12px;
+}
+
+        .welcome-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .menu-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            border: 2px solid #333;
+        }
+
+        .menu-content h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .menu-content p {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            color: black;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Nút mạng xã hội */
+        .social-buttons {
+            display: flex;
+            justify-content: center; /* Canh giữa các nút */
+            margin-top: 20px;
+        }
+
+        /* Căn chỉnh màu sắc và kiểu cho nút */
+        .social-buttons a {
+            text-decoration: none;
+            color: black; /* Màu đen cho chữ */
+            font-size: 1em; /* Kích thước chữ */
+            background-color: transparent;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 10px; /* Khoảng cách giữa các nút */
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .social-buttons a:hover {
+            color: #ddd; /* Màu sắc khi hover */
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .music-player {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin: 5px 0;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+        }
+
+        .music-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .music-item {
+            border: 1px solid #fff; /* Giảm kích thước viền xuống 1px */
+        }
+
+        .music-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .music-item .title {
+            font-size: 1.1em;
+            color: #fff;
+            flex: 1;
+        }
+
+        audio {
+            display: none;
+        }
+
+        .now-playing {
+            font-size: 1.5em;
+            margin-top: 20px;
+            animation: slideIn 1s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dark-mode {
+            background-color: #181818;
+            color: #fff;
+        }
+
+        .dark-mode .music-item {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .music-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Hiệu ứng bóng nước */
+        .water-ball {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hiệu ứng tuyết rơi -->
+    <div id="snow-container"></div>
+
+    <!-- Menu Chào Mừng -->
+    <div id="welcome-menu" class="welcome-menu">
+        <div class="menu-content">
+            <button id="close-btn" class="close-btn">&times;</button>
+            <h2>Chào mừng bạn đến với Music Player</h2>
+            <p>Khám phá âm nhạc yêu thích của bạn hoặc tìm bài hát mới!</p>
+
+            <!-- Nút mạng xã hội trong menu -->
+            <div class="social-buttons">
+                <a href="https://quocchienn.github.io/Shadowrocket-Unlock-Pro-Apps-2/" target="_blank">Shadowrocket Unlock Pro App</a>
+                <a href="https://zalo.me/84385531007" target="_blank">Zalo</a>
+            </div>
+        </div>
+    </div>
+<!-- Phần ảnh kéo chuyển động -->
+    <div class="image-carousel">
+        <div class="image-carousel-track">
+            <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" class="carousel-image" alt="Album 1">
+            <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" class="carousel-image" alt="Album 2">
+            <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" class="carousel-image" alt="Album 3">
+            <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" class="carousel-image" alt="Album 4">
+            <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" class="carousel-image" alt="Album 5">
+            <!-- Nhân đôi ảnh để tạo hiệu ứng lặp liên tục -->
+            <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" class="carousel-image" alt="Album 1">
+            <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" class="carousel-image" alt="Album 2">
+            <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" class="carousel-image" alt="Album 3">
+            <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" class="carousel-image" alt="Album 4">
+            <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" class="carousel-image" alt="Album 5">
+        </div>
+    </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm bài hát...">
+    </div>
+  <div class="music-player" id="musicPlayer">
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/jfgtorgbe4coqwmnk4x9t/Xin-loi-vi-da-xuat-hien.mp3?rlkey=75qzo8vopj37b407ovb17h5ca&st=g2zoyift&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/PJpMJtcM/IMG-1396.jpg" alt="Bài Hát Khác">
+        <span class="title">Xin Lỗi Vì Anh Đã Xuất Hiện</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/z7oipft2t7ji2b5bas26e/XA-ANH-CHAM-CHAM-THOI.mp3?rlkey=5c830eianba2hzvicpnpb1hff&st=vt48ty9e&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/xCjxfVns/IMG-1371.jpg" alt="Bài Hát Khác">
+        <span class="title">Xa Anh Chậm Thôi</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/llct9pwtlcdleq4nshb4n/WREK-ME.mp3?rlkey=bv4acwtrpndx78ijil8xm4vcd&st=550qsfcx&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/SKf1bxF2/IMG-1372.jpg" alt="Bài Hát Khác">
+        <span class="title">WREK ME</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/3ryhow5ez0qv375qvzf4p/Whistle-Remix.mp3?rlkey=xhh3aom621d4emfsl7yadgmvx&st=wrjap740&raw=1" data-img="https://i.postimg.cc/MTssX3Gz/IMG-1373.jpg">
+        <img src="https://i.postimg.cc/MTssX3Gz/IMG-1373.jpg" alt="Bài Hát Khác">
+        <span class="title">Whistle Remix</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/kiuo7snmwd5j1olsjfqcn/V-Tinh-Mix-C-c-C-ng.mp3?rlkey=1r9d1733z7ylnmca6r61wgauu&st=4drhlvil&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/k5mYHtZP/IMG-1374.jpg" alt="Bài Hát Khác">
+        <span class="title">Vô Tình Mĩ Cực Căng</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/35zif6f0ysh2fkzd1dwge/V-t-M-a.mp3?rlkey=hgh9mj6fuaw7h0pslsu1h9igk&st=ghknyece&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/yYDG3K9t/IMG-1375.jpg" alt="Bài Hát Khác">
+        <span class="title">Vết Mưa</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6y3cb2zkyki5u0mual12b/Ves-3-1-DIEU-BASS.mp3?rlkey=jx3v7b1icbe2a7ycbo1tz9xz5&st=wd80amtp&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/DwsY5cxc/IMG-1376.jpg" alt="Bài Hát Khác">
+        <span class="title">Vre 3 - Mix Cực Căng</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/xyd81s30n41smmi97fy63/Tu-m-China.mp3?rlkey=l80wujdk0my7mjr25jxs0rp1u&st=gqwx7rgi&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Pr0Rm7Qx/IMG-1377.jpg" alt="Bài Hát Khác">
+        <span class="title">Tuý Âm 中國</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/u6kplq3j08gwamn84aoej/Remix-Hot-TikTok.mp3?rlkey=y7o9gr6kbxmesa789aimv08fp&st=d3tmgmry&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/1RCTzXgD/IMG-1378.jpg" alt="Bài Hát Khác">
+        <span class="title">Còn Buồn Không Em</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/xgz40b1t905td4rqplg6m/Boy-Ph.mp3?rlkey=tz3dio0l8fxy30zj1ocy0r5gz&st=t4q2497e&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Gt5Sgg0X/IMG-1379.jpg" alt="Bài Hát Khác">
+        <span class="title">Nhạc Cho Boy Phố - Mix Cực Bá</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/fzqa2wjx7nb6rjq0ppvfd/E-i-E.mp3?rlkey=d2zl2fobunaoepcsx7yru0fx1&st=tjhi4m15&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wMvGV8rt/IMG-1380.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Ơi Em À Remix </span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/n08p7vxsyia240c5rjujj/NST-C-NG-H-N-L-C-M-C-M-CH-I-KUNN-MIX.mp3?rlkey=gp4tfg7r536evael9gg41pun8&st=gmhs3c7u&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/cHTzw4Fy/IMG-1381.jpg" alt="Bài Hát Khác">
+        <span class="title">NST - Căng Hơn Lúc Mẹ Cầm Chổi</span>
+    </div>
+		   <div class="music-item" data-src="https://www.dropbox.com/scl/fi/ffdixou27wfzu51xo8uhz/Pod-Chill-Bee-Vol-4-Remix.mp3?rlkey=bs5pv78v4n56gwycrb36813ru&st=7ucx1an6&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/9McSDqtY/IMG-1382.jpg" alt="Bài Hát Khác">
+        <span class="title">Pod Chill Bee Vol 4 Remix</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/qucspterkf6u0841c5hs0/M-L-n-R-y-C-c-C-ng.mp3?rlkey=ha6b1nly4yhpdx55b1h4wstt7&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wBXZxkJB/IMG-1383.jpg" alt="Bài Hát Khác">
+        <span class="title">Mẹ Lên Núi Cực Căng</span>
+			</div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/11r68c1iocvjoklm1ac3k/6H-Bay-C-ng-Th-i-Ho-ng.mp3?rlkey=87e2a5gh0z7nq9k8yy03fb2o7&st=38ưuddw2&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/q7VWdFNY/IMG-1384.jpg" alt="Bài Hát Khác">
+        <span class="title">6H Bay Cùng Thái Hoàng</span>
+			</div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/wrsziu5aphxrps8dnzy3n/2H-BAY-TRONG-TH-NH-PH-HOUSE-VOL2.mp3?rlkey=gftnew1qhvpldlzvzmlzryfod&st=03qpu7iq&raw=1" data-img="https://www.dropbox.com/scl/fi/wrsziu5aphxrps8dnzy3n/2H-BAY-TRONG-TH-NH-PH-HOUSE-VOL2.mp3?rlkey=gftnew1qhvpldlzvzmlzryfod&st=03qpu7iq&raw=1">
+        <img src="https://i.postimg.cc/52FDTJ2L/IMG-1385.jpg" alt="Bài Hát Khác">
+        <span class="title">2H Bay Trong Thành Phố HOUSE Vol2</span>
+    </div>  
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/c7edmhkgbaxj8t74ivksc/Bay-Trong-Bas-New-MDM-2023.mp3?rlkey=a0omurerx8ebymtx575v11ipn&st=gzsnybhr&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/4N0rWysX/IMG-1386.jpg" alt="Bài Hát Khác">
+        <span class="title">Bay Trong Bar New MDM 2023</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/1ujtgi1vrxqk7phyukaq3/C-n-Th-ng-Em-Nh-ng-H-m-Nay-T-i-Bu-n.mp3?rlkey=1726900pto28re5eu3c00f2au&st=bynutu4f&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/CL53Ckyv/IMG-1387.jpg" alt="Bài Hát Khác">
+        <span class="title">Còn Thương Em Nhưng Ngày Hôm Nay Tôi Buồn</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/tf2i2vpkdx14fpq6dhu1x/Em-G-Cho-Anh-C-p-K.mp3?rlkey=k4z8qw94awc8044tva2ga39i6&st=rzztkyvg&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/7hYpWT5Z/IMG-1388.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Gẻ Cho Anh Cập Kê Mix </span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6tfz5jd3vc4h80zyf0sa6/EM-V-N-CH-A-V.mp3?rlkey=n0nw0b2wq9qml4b3vhik9rktp&st=p6wkm0v3&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/tRB0VDcZ/IMG-1389.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Vẫn Chưa Về</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/d5nllmyiurbzprnbdznk7/Gi-t-S-ng-Tr-n-M-M-t.mp3?rlkey=a5g5758xygbrbehdtc4mpx4d1&st=90gsjwcr&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/hGVWznFc/IMG-1390.jpg" alt="Bài Hát Khác">
+        <span class="title">Giọt Sương Trên Mí Mắt</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/etc4cfk92qmqvbwq48hbz/Hai-Ch-T-ng.mp3?rlkey=80s9hcnxvtihc5osx2ink6eu2&st=thovstfg&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HxHGbNH5/IMG-1391.jpg" alt="Bài Hát Khác">
+        <span class="title">Hai Chữ Đã Từng</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/xj29wkij3headqu37r27f/Li-u-Thu-c-Cho-Tr-i-Tim.mp3?rlkey=qu0weeakcaf2dk8sq7baj5fhi&st=00hnf35h&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/ydTMjTYG/IMG-1392.jpg" alt="Bài Hát Khác">
+        <span class="title">Liều Thuốc Cho Trái Tim</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/1h0kc2i6uwf0kb426s4rr/Mang-Ch-ng-Ver-China-2021.mp3?rlkey=otmqne7ja498pt3qaad7v7dwa&st=p4kadrru&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/SRTwFN97/IMG-1393.jpg" alt="Bài Hát Khác">
+        <span class="title">Mang Chủng Ver China 2021</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/l9cqeuhz6f6dpvoafa3lh/Me-Gusta.mp3?rlkey=zxb1tqscx685arrkkllzs2mmr&st=wfyiaf0h&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Nj9wtTpy/IMG-1394.jpg" alt="Bài Hát Khác">
+        <span class="title">Me Gusta</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/gmgbu1f1h5zllzane5zty/Nghe-i-R-i-Bu-n-VOL-2.mp3?rlkey=5iugwpf50duq7491ly58glss0&st=2glfy80b&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/vZJwZBN0/IMG-1395.jpg" alt="Bài Hát Khác">
+        <span class="title">Nghe Đi Rồi Buồn Vol 2</span>
+			</div>
+   <div class="music-item" data-src="https://www.dropbox.com/scl/fi/gxplypje8oyop1561vrlq/V-n-S-Tu-Duy-n.mp3?rlkey=h20q7ahb3oq4o9wedqjdet37r&st=1e6zvbsv&raw=1" data-img="https://via.placeholder.com/150?text=V%C3%A0n+S%E1%BA%B9+T%E1%BB%B1+Duy%C3%AAn">
+        <img src="https://i.postimg.cc/SRJg9LXC/IMG-1370.jpg" alt="Vâ Tự Duyên">
+        <span class="title">Vạn Sự Tuỳ Duyên</span>
+    <!-- Thêm nhiều bài hát khác tại đây -->
+    </div>
+   </div>
+
+    <div class="footer">
+        <p class="copyright">&copy; Music player Copyright belongs to Quốc Chiến. Copyright belongs to Quốc Chiến.
+            <a href="mailto:lequocchien2709@icloud.com">Liên hệ với chúng tôi</a>
+        </p>
+    </div>
+    <audio id="background-music" preload="auto" loop></audio>
+
+    <div class="now-playing" id="nowPlaying">Bài Hát Đang Phát: </div>
+
+    <script>
+        // Tạo hiệu ứng tuyết rơi
+        const snowContainer = document.getElementById('snow-container');
+        const createSnowflake = () => {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = '&#10052;'; // Biểu tượng tuyết
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = Math.random() * 5 + 3 + 's'; // Thay đổi thời gian rơi
+            snowContainer.appendChild(snowflake);
+            setTimeout(() => {
+                snowflake.remove();
+            }, 8000); // Thời gian tồn tại của tuyết
+        };
+
+        setInterval(createSnowflake, 300); // Tạo tuyết mỗi 200ms
+
+        const closeBtn = document.getElementById('close-btn');
+        const welcomeMenu = document.getElementById('welcome-menu');
+
+        closeBtn.addEventListener('click', function () {
+            welcomeMenu.classList.add('hidden');
+        });
+
+        const playButtons = document.querySelectorAll('.music-item');
+        const backgroundMusic = document.getElementById('background-music');
+        const searchInput = document.getElementById('searchInput');
+        const nowPlaying = document.getElementById('nowPlaying');
+
+        function applyTheme() {
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            document.body.classList.toggle('dark-mode', darkModeMediaQuery.matches);
+        }
+
+        applyTheme();
+        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        darkModeMediaQuery.addEventListener('change', applyTheme);
+
+        playButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const songSrc = button.getAttribute('data-src');
+                const songTitle = button.querySelector('.title').textContent;
+
+                backgroundMusic.src = songSrc;
+                backgroundMusic.play().catch(error => {
+                    console.error("Lỗi phát nhạc:", error.message);
+                    alert("Không thể phát nhạc. Vui lòng kiểm tra liên kết hoặc chính sách trình duyệt.");
+                });
+                nowPlaying.textContent = "Bài hát hiện tại: " + songTitle;
+
+                });
+            });
+
+        searchInput.addEventListener('input', function () {
+            const filter = searchInput.value.toLowerCase();
+            playButtons.forEach(button => {
+                const title = button.querySelector('.title').textContent.toLowerCase();
+                if (title.includes(filter)) {
+                    button.style.display = 'flex';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
