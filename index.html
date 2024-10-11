@@ -3,322 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Player Belongs to Quoc Chien</title>
+      <title>Music Player Belongs to Quoc Chien</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/R0JCgyjD/IMG-1369.jpg">
-    <style>
+		<style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('https://i.postimg.cc/YS66JLHY/8-A29-E522-C260-419-E-87-B4-4-DBDFD2-A1326.gif');
-            background-size: cover;
-            color: #fff;
             margin: 0;
+            padding: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
             overflow: hidden;
-            padding: 20px;
-            animation: fadeIn 1s ease-in-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        /* Chế độ sáng/tối tự động */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1c1c1c;
+                color: #fff;
             }
-            to {
-                opacity: 1;
+            header, .search-container, .music-player, .now-playing {
+                background-color: #141414;
             }
-        }
-
-        /* Hiệu ứng tuyết rơi */
-        .snowflake {
-            position: absolute;
-            top: -10px;
-            color: white;
-            font-size: 1em;
-            pointer-events: none;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            0% {
-                transform: translateY(0);
+            .music-item {
+                background-color: #2c2c2c;
             }
-            100% {
-                transform: translateY(100vh);
+            .music-item:hover {
+                background-color: #3d3d3d;
             }
         }
 
-        /* Phần chứa hình ảnh chuyển động */
-.image-carousel {
-    width: 100%;
-    height: 150px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 20px;
-}
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            header, .search-container, .music-player, .now-playing {
+                background-color: #f1f1f1;
+            }
+            .music-item {
+                background-color: #e0e0e0;
+            }
+            .music-item:hover {
+                background-color: #d3d3d3;
+            }
+        }
 
-.image-carousel-track {
-    display: flex;
-    width: max-content; /* Thay đổi để chiều rộng linh hoạt dựa trên số lượng ảnh */
-    animation: slide 20s linear infinite; /* Vẫn giữ hiệu ứng slide */
-}
-
-.music-player {
-    flex-grow: 1; /* Cho phép phần này mở rộng */
-    overflow-y: auto; /* Cho phép cuộn dọc nếu có nhiều bài hát */
-    max-height: 60vh; /* Giới hạn chiều cao để không lấn vào ảnh chuyển động */
-}
-
-@keyframes slide {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%); /* Dịch chuyển một nửa tổng chiều rộng */
-    }
-}
-
-.carousel-image {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    margin-right: 20px;
-    border-radius: 12px;
-}
-
-        .welcome-menu {
-            position: fixed;
+        /* Header */
+        header {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        /* User Menu */
+        .user-menu {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .menu-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-            border: 2px solid #333;
-        }
-
-        .menu-content h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .menu-content p {
-            color: #666;
-            font-size: 1em;
-            margin-bottom: 20px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: transparent;
-            color: black;
-            border: none;
-            font-size: 24px;
-            font-weight: bold;
+           align-items: center;
             cursor: pointer;
-            padding: 0;
+        }
+
+        .user-menu .user-name {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .user-menu .fa-user-circle {
+            font-size: 1.5em;
+        }
+
+        /* Search bar */
+        .search-container {
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Nút mạng xã hội */
-        .social-buttons {
-            display: flex;
-            justify-content: center; /* Canh giữa các nút */
-            margin-top: 20px;
-        }
-
-        /* Căn chỉnh màu sắc và kiểu cho nút */
-        .social-buttons a {
-            text-decoration: none;
-            color: black; /* Màu đen cho chữ */
-            font-size: 1em; /* Kích thước chữ */
-            background-color: transparent;
-            border: none;
-            padding: 5px 10px;
-            margin: 0 10px; /* Khoảng cách giữa các nút */
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        .social-buttons a:hover {
-            color: #ddd; /* Màu sắc khi hover */
-        }
-
-        .search-container {
-            margin-bottom: 20px;
+            justify-content: space-between;
+            position: relative;
         }
 
         .search-container input {
+            width: 85%;
             padding: 10px;
-            width: 300px;
             border: none;
             border-radius: 5px;
             outline: none;
         }
 
-        .music-player {
+        .search-container .fa-search {
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        /* Album Carousel */
+        .image-carousel {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            width: 100%;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .image-carousel::-webkit-scrollbar {
+            display: none; /* Chrome */
+        }
+
+        .carousel-image {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        /* Music List */
+        .music-player {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 20px;
         }
 
         .music-item {
             display: flex;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            margin: 5px 0;
             padding: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
         }
 
         .music-item img {
             width: 50px;
             height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .music-item {
-            border: 1px solid #fff; /* Giảm kích thước viền xuống 1px */
-        }
-
-        .music-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
+            margin-right: 15px;
+            border-radius: 5px;
         }
 
         .music-item .title {
-            font-size: 1.1em;
-            color: #fff;
-            flex: 1;
+            font-size: 1.2em;
+            flex-grow: 1;
         }
 
-        audio {
-            display: none;
-        }
-
-        .now-playing {
+        .music-item .fa-play-circle {
             font-size: 1.5em;
-            margin-top: 20px;
-            animation: slideIn 1s;
+            cursor: pointer;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        /* Now playing */
+        .now-playing {
+            padding: 10px; /* Thu nhỏ padding */
+            text-align: center;
+            display: none; /* Ẩn phần này theo mặc định */
+            flex-direction: column;
+            position: relative; /* Đảm bảo vị trí tương đối */
+            bottom: 0; /* Đặt phần này ở đáy */
         }
 
-        .dark-mode {
-            background-color: #181818;
-            color: #fff;
-        }
-
-        .dark-mode .music-item {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .dark-mode .music-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Hiệu ứng bóng nước */
-        .water-ball {
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-            height: 50px;
+        .now-playing img {
             width: 50px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            animation: bounce 1s infinite;
+            height: 50px;
+            border-radius: 5px;
+            margin-bottom: 10px; /* Khoảng cách giữa ảnh và tiêu đề */
         }
 
-        @keyframes bounce {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
+        .now-playing .song-info {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Canh giữa */
+            width: 100%;
         }
+
+        .now-playing .song-details {
+            flex-grow: 1;
+            text-align: left; /* Canh trái tiêu đề */
+        }
+
+        .now-playing .song-details span {
+            font-weight: bold;
+        }
+
+        .now-playing .fa-play-circle {
+            display: none; /* Ẩn biểu tượng play */
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
+            cursor: pointer;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #ff3465;
+            width: 0;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 10px 20px;
+            text-align: center;
+            background-color: #f1f1f1;
+        }
+
+        .copyright {
+            margin: 0;
+        }
+				.footer {
+    text-align: center; /* căn giữa */
+    padding: 20px; /* khoảng cách */
+}
+
+.social-icons {
+    margin-top: 10px; /* khoảng cách giữa copyright và nút mạng xã hội */
+}
+
+.social-icons a {
+    margin: 0 10px; /* khoảng cách giữa các nút */
+    text-decoration: none; /* bỏ gạch chân */
+    color: #007BFF; /* màu chữ */
+}
+
+.social-icons a:hover {
+    text-decoration: underline; /* gạch chân khi hover */
+}
     </style>
 </head>
 <body>
-
-    <!-- Hiệu ứng tuyết rơi -->
-    <div id="snow-container"></div>
-
-    <!-- Menu Chào Mừng -->
-    <div id="welcome-menu" class="welcome-menu">
-        <div class="menu-content">
-            <button id="close-btn" class="close-btn">&times;</button>
-            <h2>Chào mừng bạn đến với Music Player</h2>
-            <p>Thưởng thức hàng triệu bài hát yêu thích của bạn mọi lúc, mọi nơi. Tìm kiếm dễ dàng, nghe nhạc không giới hạn. Mà Không Có Quảng Cáo</p>
-
-            <!-- Nút mạng xã hội trong menu -->
-            <div class="social-buttons">
-                <a href="https://quocchienn.github.io/Shadowrocket-Unlock-Pro-Apps-2/" target="_blank">Shadowrocket Unlock Pro App</a>
-                <a href="https://zalo.me/84385531007" target="_blank">Zalo</a>
-            </div>
+    <!-- Header -->
+    <header>
+        <h1>Music Player</h1>
+        <div class="user-menu">
+            <span class="user-name">Xin chào, Người dùng</span>
+            <i class="fa fa-user-circle"></i>
         </div>
-    </div>
-<!-- Phần ảnh kéo chuyển động -->
-    <div class="image-carousel">
-        <div class="image-carousel-track">
-            <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" class="carousel-image" alt="Album 1">
-            <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" class="carousel-image" alt="Album 2">
-            <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" class="carousel-image" alt="Album 3">
-            <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" class="carousel-image" alt="Album 4">
-            <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" class="carousel-image" alt="Album 5">
-            <!-- Nhân đôi ảnh để tạo hiệu ứng lặp liên tục -->
-            <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" class="carousel-image" alt="Album 1">
-            <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" class="carousel-image" alt="Album 2">
-            <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" class="carousel-image" alt="Album 3">
-            <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" class="carousel-image" alt="Album 4">
-            <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" class="carousel-image" alt="Album 5">
-        </div>
-    </div>
-    </div>
+    </header>
 
+    <!-- Thanh tìm kiếm -->
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Tìm kiếm bài hát...">
+        <i class="fa fa-search" id="searchBtn"></i>
     </div>
-  <div class="music-player" id="musicPlayer">
-    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/jfgtorgbe4coqwmnk4x9t/Xin-loi-vi-da-xuat-hien.mp3?rlkey=75qzo8vopj37b407ovb17h5ca&st=g2zoyift&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+
+    <!-- Danh sách bài hát -->
+    <div class="music-player" id="musicList">
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/qfg9dhiatsurtjl31hzgs/DAT-SET-ME-FREE-FULL-River-remix.mp3?rlkey=i83l0xgdgyvcf23s27r5ejuef&st=d9inhi0n&&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" alt="Bài Hát Khác">
+        <span class="title">SET ME FREE FULL</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/c12545va4vcnqwp9vorod/t_C-u_V-ng_Khuy-t_Quang_Hi-u_MixHPPD_QU-C_CA_.mp3?rlkey=htaonajj5m44x8k62xwd5xocj&st=t9hmhdmu&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" alt="Bài Hát Khác">
+        <span class="title">Cầu Vồng Khuyết</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/hp3cvp4p25g8n29u98wk9/Dat-Em-G-i-M-a-Quoc-Duy-x-Tuan-Kiet-Full.mp3?rlkey=0ukefmkcb154hkc077ydaoytk&st=enhd7e71&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Gái Mưa - Mix Full</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/gxb2jrujg6xr7y10v7apo/DAT-DANG-SAU-DEM-TOI-X-ZINZ-REMIX.mp3?rlkey=imi90t3l0wkoze4prr6c4hc8o&st=9mjm6qec&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" alt="Bài Hát Khác">
+        <span class="title">Đằng Sau Đêm Tối Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/opj8jdrd0cy8viaslwv1e/BAC-Wolves.mp3?rlkey=bz1mstgtdq7uxsi9axvmdd4nn&st=cp8nczcu&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" alt="Bài Hát Khác">
+        <span class="title">Wolves</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/whye3d28urg0x5fn11eer/BAC-SE-KHONG-CON-NUA.mp3?rlkey=2vzdwo0hg4p5mqbkr6zq2nxa1&st=wpy8vtk3&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/W1cdXpRf/IMG-1377.jpg" alt="Bài Hát Khác">
+        <span class="title">Sẽ Không Còn Nữa Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/rfeolhkafptg69s791nud/BAC-MoonLight-Shadow.mp3?rlkey=8x54tlmzeog0ze89xbkgv52dh&st=ndbgnz9r&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/vT14ScHC/IMG-1457.jpg" alt="Bài Hát Khác">
+        <span class="title">Moonlight Shadow</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/xyudaw5hh5evop3ry4clb/BAC-Love-To-Be-Loved-By-You.mp3?rlkey=5qitkq9w6lgv5iofon83hvbax&st=vidn13t7&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/BbdjW4jb/IMG-1458.jpg" alt="Bài Hát Khác">
+        <span class="title">Love To Be Loved By You</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/ht5f9mqfbin2zkwktt46k/M-Sao-Cung-Duoc-2023.mp3?rlkey=sjbfy6ccnc3vs37e7khk99hws&st=0mnrtmce&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/gc5XLqgp/IMG-1459.jpg" alt="Bài Hát Khác">
+        <span class="title">Sao Cũng Được Mix 2023</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/9rvywa0uw7frn0pkev6aj/M-HERE-WITH-U-D-ng-Antony.mp3?rlkey=qgcehk37sn6za0wuu1u7vn51x&st=yp6j1yym&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/qM3tshF3/IMG-1460.jpg" alt="Bài Hát Khác">
+        <span class="title">HERE WITH U</span>
+				</div>
+        <div class="music-item" data-src="https://www.dropbox.com/scl/fi/jfgtorgbe4coqwmnk4x9t/Xin-loi-vi-da-xuat-hien.mp3?rlkey=75qzo8vopj37b407ovb17h5ca&st=g2zoyift&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
         <img src="https://i.postimg.cc/PJpMJtcM/IMG-1396.jpg" alt="Bài Hát Khác">
         <span class="title">Xin Lỗi Vì Anh Đã Xuất Hiện</span>
     </div>
@@ -336,7 +321,7 @@
     </div>
     <div class="music-item" data-src="https://www.dropbox.com/scl/fi/kiuo7snmwd5j1olsjfqcn/V-Tinh-Mix-C-c-C-ng.mp3?rlkey=1r9d1733z7ylnmca6r61wgauu&st=4drhlvil&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
         <img src="https://i.postimg.cc/k5mYHtZP/IMG-1374.jpg" alt="Bài Hát Khác">
-        <span class="title">Vô Tình Mĩ Cực Căng</span>
+        <span class="title">Vô Tình Mix Cực Căng</span>
     </div>
     <div class="music-item" data-src="https://www.dropbox.com/scl/fi/35zif6f0ysh2fkzd1dwge/V-t-M-a.mp3?rlkey=hgh9mj6fuaw7h0pslsu1h9igk&st=ghknyece&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
         <img src="https://i.postimg.cc/yYDG3K9t/IMG-1375.jpg" alt="Bài Hát Khác">
@@ -541,81 +526,158 @@
    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/gxplypje8oyop1561vrlq/V-n-S-Tu-Duy-n.mp3?rlkey=h20q7ahb3oq4o9wedqjdet37r&st=1e6zvbsv&raw=1" data-img="https://via.placeholder.com/150?text=V%C3%A0n+S%E1%BA%B9+T%E1%BB%B1+Duy%C3%AAn">
         <img src="https://i.postimg.cc/SRJg9LXC/IMG-1370.jpg" alt="Vâ Tự Duyên">
         <span class="title">Vạn Sự Tuỳ Duyên</span>
-    <!-- Thêm nhiều bài hát khác tại đây -->
+        <!-- Thêm nhiều bài hát khác tại đây -->
     </div>
-   </div>
+
+    <!-- Now Playing -->
+    <div class="now-playing" id="nowPlaying">
+        <div class="song-info">
+            <img id="nowPlayingImage" src="" alt="Now Playing Image">
+            <div class="song-details">
+                <span id="nowPlayingTitle"></span>
+            </div>
+        </div>
+        <div class="progress-bar" id="progressBar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="time-info">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+        <i class="fa fa-play-circle" id="playPauseBtn"></i>
+    </div>
 
     <div class="footer">
-        <p class="copyright">&copy; Music player Copyright belongs to Quốc Chiến. Copyright belongs to Quốc Chiến.
-            <a href="mailto:lequocchien2709@icloud.com">Liên hệ với chúng tôi</a>
-        </p>
+    <p class="copyright">
+        &copy; Music player Copyright belongs to Quốc Chiến. Copyright belongs to Quốc Chiến.
+        <a href="mailto:lequocchien2709@icloud.com">Liên hệ với chúng tôi</a>
+    </p>
+    <div class="social-icons">
+        <a href="https://www.facebook.com/QuocChien2709?mibextid=LQQJ4d" target="_blank">Facebook</a>
+        <a href="http://zalo.me/84385531007" target="_blank">Zalo</a>
+        <a href="https://quocchienn.github.io/Shadowrocket-Unlock-Pro-Apps-2/" target="_blank">Shadowrocket Unlock Pro App</a>
+        <a href="https://quocchienn.github.io/ipastore.vn.io.co/" target="_blank">Ipa Store</a>
     </div>
-    <audio id="background-music" preload="auto" loop></audio>
-
-    <div class="now-playing" id="nowPlaying">Bài Hát Đang Nghe: </div>
-
+</div>
     <script>
-        // Tạo hiệu ứng tuyết rơi
-        const snowContainer = document.getElementById('snow-container');
-        const createSnowflake = () => {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.innerHTML = '&#10052;'; // Biểu tượng tuyết
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.animationDuration = Math.random() * 5 + 3 + 's'; // Thay đổi thời gian rơi
-            snowContainer.appendChild(snowflake);
-            setTimeout(() => {
-                snowflake.remove();
-            }, 8000); // Thời gian tồn tại của tuyết
-        };
+        const musicItems = document.querySelectorAll('.music-item');
+        const audio = new Audio();
+        const nowPlaying = document.getElementById('nowPlaying');
+        const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+        const nowPlayingImage = document.getElementById('nowPlayingImage');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const currentTimeLabel = document.getElementById('currentTime');
+        const durationLabel = document.getElementById('duration');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        let isPlaying = false;
+        let isDragging = false;
 
-        setInterval(createSnowflake, 300); // Tạo tuyết mỗi 200ms
+        musicItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (audio.src !== item.dataset.src) {
+                    audio.src = item.dataset.src;
+                    nowPlayingTitle.textContent = item.querySelector('.title').textContent;
 
-        const closeBtn = document.getElementById('close-btn');
-        const welcomeMenu = document.getElementById('welcome-menu');
+                    // Lấy ảnh từ phần tử img bên trong .music-item
+                    const imgElement = item.querySelector('img');
+                    nowPlayingImage.src = imgElement.src; // Gán src của img vào Now Playing
 
-        closeBtn.addEventListener('click', function () {
-            welcomeMenu.classList.add('hidden');
+                    nowPlaying.style.display = 'flex'; // Hiển thị Now Playing
+                    audio.play();
+                    isPlaying = true;
+                    updatePlayPauseIcon();
+                    updateDuration();
+                } else {
+                    togglePlayPause();
+                }
+            });
         });
 
-        const playButtons = document.querySelectorAll('.music-item');
-        const backgroundMusic = document.getElementById('background-music');
-        const searchInput = document.getElementById('searchInput');
-        const nowPlaying = document.getElementById('nowPlaying');
+        playPauseBtn.addEventListener('click', togglePlayPause);
 
-        function applyTheme() {
-            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            document.body.classList.toggle('dark-mode', darkModeMediaQuery.matches);
+        audio.addEventListener('timeupdate', () => {
+            if (!isDragging) {
+                const progressPercent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                currentTimeLabel.textContent = formatTime(audio.currentTime);
+            }
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            durationLabel.textContent = formatTime(audio.duration);
+        });
+
+        // Cập nhật thông tin độ dài bài hát
+        function updateDuration() {
+            durationLabel.textContent = formatTime(audio.duration);
         }
 
-        applyTheme();
-        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        darkModeMediaQuery.addEventListener('change', applyTheme);
+        // Định dạng thời gian
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+        }
 
-        playButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const songSrc = button.getAttribute('data-src');
-                const songTitle = button.querySelector('.title').textContent;
+        // Tống hợp các hàm play, pause
+        function togglePlayPause() {
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            isPlaying = !isPlaying;
+            updatePlayPauseIcon();
+        }
 
-                backgroundMusic.src = songSrc;
-                backgroundMusic.play().catch(error => {
-                    console.error("Lỗi phát nhạc:", error.message);
-                    alert("Không thể phát nhạc. Vui lòng kiểm tra liên kết hoặc chính sách trình duyệt.");
-                });
-                nowPlaying.textContent = "Bài hát hiện tại: " + songTitle;
+        // Cập nhật biểu tượng play/pause
+        function updatePlayPauseIcon() {
+            playPauseBtn.classList.toggle('fa-play-circle', !isPlaying);
+            playPauseBtn.classList.toggle('fa-pause-circle', isPlaying);
+        }
 
-                });
-            });
+        // Xử lý sự kiện kéo thanh tiến độ
+        progressBar.addEventListener('mousedown', startDragging);
+        progressBar.addEventListener('touchstart', startDragging);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchend', stopDragging);
 
-        searchInput.addEventListener('input', function () {
-            const filter = searchInput.value.toLowerCase();
-            playButtons.forEach(button => {
-                const title = button.querySelector('.title').textContent.toLowerCase();
-                if (title.includes(filter)) {
-                    button.style.display = 'flex';
-                } else {
-                    button.style.display = 'none';
-                }
+        function startDragging(e) {
+            isDragging = true;
+            updateProgress(e);
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                updateProgress(e);
+            }
+        }
+
+        function stopDragging() {
+            isDragging = false;
+        }
+
+        function updateProgress(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left || e.touches[0].clientX - rect.left; // Hỗ trợ touch
+            const width = rect.width;
+            const percentage = Math.max(0, Math.min(1, offsetX / width));
+            progress.style.width = `${percentage * 100}%`;
+            audio.currentTime = percentage * audio.duration;
+            currentTimeLabel.textContent = formatTime(audio.currentTime);
+        }
+
+        // Xử lý tìm kiếm
+        searchBtn.addEventListener('click', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            musicItems.forEach(item => {
+                const title = item.querySelector('.title').textContent.toLowerCase();
+                item.style.display = title.includes(searchTerm) ? 'flex' : 'none';
             });
         });
     </script>
