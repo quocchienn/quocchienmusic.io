@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Belongs to Quoc Chien</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/J43MgCWX/38-CC5335-0-A92-4078-AC0-D-6-FA917-AC8222.webp">
+    <style>
+        /* Cài đặt chung */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #1c1c1c;
+            color: #fff;
+        }
+
+        /* Header */
+        header {
+            padding: 15px 25px;
+            background-color: #222831;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #EEEEEE;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: bold;
+            color: #00ADB5;
+        }
+
+        .logo {
+            width: 59px;
+            height: 59px;
+            margin-right: 10px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #EEEEEE;
+        }
+
+        .user-menu .user-name {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .user-menu .fa-user-circle {
+            font-size: 1.5em;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-container {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #393e46;
+        }
+
+        .search-container input {
+            width: calc(100% - 50px);
+            padding: 12px;
+            border: 1px solid #EEE;
+            border-radius: 25px;
+            outline: none;
+            background-color: #222831;
+            color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        /* Danh sách bài hát */
+        .music-player {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 20px;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: #fff;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .music-item:hover {
+            transform: scale(1.05);
+            background-color: #3d3d3d;
+        }
+
+        .music-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+
+        .music-item .title {
+            font-size: 1.2em;
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .music-item .fa-play-circle {
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        /* Phần Now Playing */
+        .now-playing {
+            padding: 15px;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            background-color: #222831;
+            color: #EEEEEE;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .now-playing img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .now-playing .song-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .now-playing .fa-play-circle,
+        .now-playing .fa-pause-circle {
+            font-size: 2em;
+            color: #ff3465;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .now-playing .fa-play-circle:hover,
+        .now-playing .fa-pause-circle:hover {
+            transform: scale(1.2);
+        }
+
+        /* Thanh tiến độ */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #393e46;
+            cursor: pointer;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #8f94fb, #4e54c8);
+            border-radius: 5px;
+            width: 0;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px;
+            background-color: #222831;
+            color: #EEEEEE;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #00ADB5;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .social-icons {
+            margin-top: 10px;
+        }
+
+        .social-icons a {
+            margin: 0 10px;
+            color: #00ADB5;
+        }
+
+        .social-icons a:hover {
+            color: #EEEEEE;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img class="logo" src="https://i.postimg.cc/J43MgCWX/38-CC5335-0-A92-4078-AC0-D-6-FA917-AC8222.webp" alt="Logo">
+        <h1>Music Player</h1>
+        <div class="user-menu">
+            <span class="user-name">Xin chào, Người dùng</span>
+            <i class="fa fa-user-circle"></i>
+        </div>
+    </header>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm bài hát...">
+        <i class="fa fa-search"></i>
+    </div>
+
+    <!-- Danh sách bài hát -->
+    <div class="music-player" id="musicList">
+      					<div class="music-item" data-src="https://www.dropbox.com/scl/fi/8eywm3m0o5cyxtalputnf/C-D-U-C-A-NG-I-TA.mp3?rlkey=rfz32hiyvoa32o6bf1x6d9j23&st=pxhenomv&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/rwNfzVSJ/IMG-1680.jpg" alt="Bài Hát Khác">
+        <span class="title">Cô Dâu Của Người Ta Hiếu Béo Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/ewnnnm7bgqkvrl0xjk7gt/C-M-i-N-i-C-Remix-HuyN-ft-Tr-ng-Alex.mp3?rlkey=ukiy5gkhodhd9kws8jkurq5no&st=ckbr8ohp&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/hPxyWbvN/IMG-1679.jpg" alt="Bài Hát Khác">
+        <span class="title">Có Mới Nới Cũ Remix HuyN ft Trường Alex</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/q4e5gjjta53tnpaea2y28/C-Giang-T-nh-x-C-Th-m-kh-ng-v-PhongCon-ft-NgHi-u-Mi.mp3?rlkey=7613gj96kly8abo8a20oa688v&st=gjgebb1e&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/52VPxYFy/IMG-1678.jpg" alt="Bài Hát Khác">
+        <span class="title">Cố Giang Tình x Cô Thắm Không Về - PhongCon ft Hiếu Béo Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/h294ayfawpp0cflqdzgkh/NG-N-I-X-KHO-LY-BI-T-Hi-u-B-o-remix.mp3?rlkey=biw9cglegtf0ivlmrhevia2nf&st=dgaq9jd4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/hhFd1mqd/IMG-1677.jpg" alt="Bài Hát Khác">
+        <span class="title">Đừng Nói x Khoá Biệt Ly - Hiếu Béo Remix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/f6tmy3khnpe8j54pfbull/ng-H-i-Em-n-Kh-ng-Hi-u-B-o-Remix.mp3?rlkey=xnw3lfj4kdqq7ibx0yd2h1jxv&st=n2rkunbb&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/DfSp5KTv/IMG-1675.jpg" alt="Bài Hát Khác">
+        <span class="title">Đừng Hỏi Em Có Ổn Không? - Hiếu Béo Remix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/1xddvfsm7r0th24g4zhn8/Final-S-ng-Xa-Anh-Ch-ng-D-D-ng-ViPer-ft-Hi-u-B-o.mp3?rlkey=wcybowqdy4fd0wikqdlljznnv&st=4jauziev&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/KzHL4VqQ/IMG-1674.jpg" alt="Bài Hát Khác">
+        <span class="title">Sống Xa Anh Chẳng Dễ Dàng - ViPer ft Hiếu Béo Mix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/fcodkiws92c9hu0g8wqtx/Mu-n-NgHi-u-Remake-style-TH.mp3?rlkey=gl4fpbx4ni0jmfqc9c8b8z33t&st=mgixn9k5&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/jjvyYCyp/IMG-1673.jpg" alt="Bài Hát Khác">
+        <span class="title">Muộn - Hiếu Béo Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/s09vx57xuca1nbaqnl4u9/Li-u-Thu-c-Cho-Tr-i-Tim-Hi-u-B-o-remix.mp3?rlkey=kaspv6gdwa5mpeb4jfdbpxzqo&st=yqnjrx7k&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/9Xs8nNmG/IMG-1672.jpg" alt="Bài Hát Khác">
+        <span class="title">Liều Thuốc Cho Trái Tim - Hiếu Béo Remix</span>
+			</div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6scdevcp355xm1hbge35g/H-ng-Hoa-Phai-T-n-Huy-pt-ft-Hi-u-B-o.mp3?rlkey=ud1sdy6n7sdmumecww9r7pt8l&st=nrhiscwz&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/cHHwxZmr/IMG-1670.jpg" alt="Bài Hát Khác">
+        <span class="title">Hương Hoa Phai Tàn - Huy Pt ft Hiếu Béo Mix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/vwi2i6ttj2k9uwz9ye369/Quan-H-R-ng-ThanhLong-x-Hi-u-B-o-Remix.mp3?rlkey=vs2iyjqgmgqzjo9ss4ci8l8nc&st=ukmmiu9d&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/fbMYPYS7/IMG-1605.jpg" alt="Bài Hát Khác">
+        <span class="title">Quan Hệ Rộng - Thanh Long x Hiếu Béo Remix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/mlcu5bhjwxe0wq7x2fti9/She-Neva-Know-Hi-u-B-o-remix.mp3?rlkey=0b2kwe3nfjjqz0ppse0y4kod6&st=iaqjmv1m&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/4yHcc5jG/IMG-1594.jpg" alt="Bài Hát Khác">
+        <span class="title">She Neva Know - Hiếu Béo Remix</span>
+			</div>
+     <div class="music-item" data-src="https://www.dropbox.com/scl/fi/tcg4aafjlmwds5ja5iydd/cccc.mp3?rlkey=iwgfociw0npsbeglsy8lgi7bx&st=rtc8pupi&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/ZR4TTXnv/IMG-1611.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop 2024 - Nhạc Nước Vui Hồi Lại Ký Ức</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/xd7dez32ddeso50rih5b1/BON-CHU-LAM-MIT.mp3?rlkey=zgy4lf0gd52u4hxwoe3ijlnhq&st=0oc82cda&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/6q1wf30C/IMG-1610.jpg" alt="Bài Hát Khác">
+        <span class="title">Bốn Chữ Lắm</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/hhdo4bimpxu8vpcx5seog/boi-vi-anh-yeu-em.mp3?rlkey=b6qp5spu815e67kyhoiw6qaof&st=utefdyzt&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/MHGqBRyW/IMG-1608.jpg" alt="Bài Hát Khác">
+        <span class="title">Bởi Vì Anh Yêu Em</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/yyfxsj3mfva1v4hgockjo/BIRTHDAY-VAVH.mp3?rlkey=scm6nhd5za6ic0jqpu8ru93ux&st=31pyxl77&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/dQWqYHYD/IMG-1607.jpg" alt="Bài Hát Khác">
+        <span class="title">BIRTHDAY - Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/842dcb62a6zijcjseaccb/BI-T-Y-U-KHI-N-O-TUKI.mp3?rlkey=kgiale5m0y00vxqdta27jedaa&st=5k0hi8f4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HsVTswYz/IMG-1605.jpg" alt="Bài Hát Khác">
+        <span class="title">BIẾT YÊU KHI NÀO</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/ouo6qnkrzoav88m3xgsuf/B-N-TR-N-T-NG-L-U-HD-28-8.mp3?rlkey=k040slyio894nwpf51f9hbsb7&st=b2nzy6qk&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Qd7scjWW/IMG-1604.jpg" alt="Bài Hát Khác">
+        <span class="title">Bên Trên Tầng Lầu</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/9g6e1ip11jxt576q3igee/BAO-L-U-CH-A-U-NG-T-MYN.mp3?rlkey=2jmvd3ydl28wqkrm3d7ghh57z&st=g6q0cwj6&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/BvG3gRx7/IMG-1603.jpg" alt="Bài Hát Khác">
+        <span class="title">BAO LÂU CHƯA UỐNG</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/yv21v90i6k5dwwzbf9kdb/As-Long-As-U-Love-Me-Chicken-x-D.Azh-Remix.mp3?rlkey=grev0dm4mijxppl7ed8op86lr&st=oyafvljp&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/NMschTC1/IMG-1602.jpg" alt="Bài Hát Khác">
+        <span class="title">As Long As U Love Me - Remix</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/dzhjo4frhspf1j895cvda/ANH-YEU-VOI-THE-KAY.mp3?rlkey=p2z1pnjxirv3ul60zin1b11i5&st=rjlippsj&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/8CBSnw4p/IMG-1601.jpg" alt="Bài Hát Khác">
+        <span class="title">Anh Yêu Vội Thế</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/i030t4zlt6zlnqbyoiq9p/Mixtape-Tinanic.mp3?rlkey=qkqxpikozs7xomynlvp6xzypx&st=exl1b0k9&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/B6mGJ6RR/IMG-1600.jpg" alt="Bài Hát Khác">
+        <span class="title">Mixtape Tinanic</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/7dxyhdhvs3ayjzahr3ibc/Mixtape-Hoa-H-u-N-c-Vui-Vol3-t-Myn.mp3?rlkey=wicnjsnrwnw95whe1kduaunsu&st=5cdhlaxz&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/J4fCrSd7/IMG-1599.jpg" alt="Bài Hát Khác">
+        <span class="title">Mixtape - Hoa Hậu Nước Vui Vol3</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/s2swpt38negw9hjs7cghv/Mixtape-Hoa-H-u-N-c-Vui-Vol-2-DJ-t-Myn.mp3?rlkey=4xtpvdi2bhbgqw3xzr9kr86nm&st=po9r6cdd&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/MH42jL6D/IMG-1598.jpg" alt="Bài Hát Khác">
+        <span class="title">Mixtape - Hoa Hậu Nước Vui Vol2</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/pm3kapjbuvkjn1sq4562g/5_6203794587912244218.mp3?rlkey=1ma2w7huuapubd74bhvei7dil&st=wqiu8g8m&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/3rbH6kXv/IMG-1597.jpg" alt="Bài Hát Khác">
+        <span class="title">NST 3H - FULL VIETMIX 2023 - Nhẹ Nhàng</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/pquavdlxuciayfeprtmyj/5_6075617469421063347.mp3?rlkey=txi7mtm7hs0apxpn2eo6e2cf6&st=6nl6lps5&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/VkXQd43q/IMG-1594.jpg" alt="Bài Hát Khác">
+        <span class="title">Tâm Trạng Buồn</span>
+			</div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/jk8yhpee0y5k8zzdtqhtn/Chuy-n-xe-cu-c-i-vol2.mp3?rlkey=e5d9pbfmdpwgw3j6j3qsrc0qa&st=083tb7eu&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/fLT6qskC/IMG-1595.jpg" alt="Bài Hát Khác">
+        <span class="title">NHẠC TRUNG QUỐC REMIX 2024 - NHẠC HOA REMIX HOT TIKTOK - FULL SET NHẠC TRUNG REMIX HAY 2024</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/i0eafe3mwv9nso8kfeggv/B-Ho-ng-Nh-c-Bu-n-Vol4.WAV?rlkey=xcxn82hxh2qp19z3ira3qfe6s&st=693a17k4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/FKxMxzF1/IMG-1593.jpg" alt="Bài Hát Khác">
+        <span class="title">Bà Hoàng Nhạc Buồn - Vol 5</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/loj0po2ut0qar3q4bswsb/Nonstop-Full-Vip-2024-Vietmix-3h-Th-t-t-nh-Dj-kenbjn-remix-Nonstop-Full-Vip-2024-Vietmix-3h-Th-t-t-nh-Dj-kenbjn-remix.mp3?rlkey=n81uhixpz30jjgghnf8mx4unu&st=2hpf7lhs&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/s2yFS7rt/IMG-1592.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop - Full Vip - 2024 - Vietmix - 3h Thất tình - Remix</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/3jg56b8la98ph3mn1m4p0/Nonstop-Vi-t-2H-T-i-Nh-Nh-ng-TH-Mix.WAV?rlkey=tmo86evg0slzreqm4tkyu0nqz&st=2ypw0jz4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Y9nTJPWH/IMG-1591.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop Việt - 2H Tươi Nhẹ Nhàng - VietMix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/9uaq06t1cylvpcvboohly/4h-Mu-n-Ki-p-L-Anh-Em-DJ.mp3?rlkey=12uwifr1w7n9ts3kdgyk2mpgx&st=ayrgvohs&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Vsh3g3w9/IMG-1587.jpg" alt="Bài Hát Khác">
+        <span class="title">4h Muôn Kiếp Là Anh Em DJ</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/51rmtta82u3ba1zxa1hga/1h45p-Full-Tbynz.wav?rlkey=j00smnhe6rh66gd8phvz8v8rw&st=2ccbppul&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/hvXNg0L7/IMG-1590.jpg" alt="Bài Hát Khác">
+        <span class="title">Nhạc Hay Nonstop 1h45p Full</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/hs991lupc47u5hx0etqqs/Mixset-China-Nh-c-Nghe-Tr-n-C-ng-N-ng-Mr.T.mp3?rlkey=dv0zs1ji3u5l2xoeoplwunkvd&st=9lfwbici&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/7YTjWmPF/IMG-1586.jpg" alt="Bài Hát Khác">
+        <span class="title">Mixset China - Nhạc Hay Nonstop Nghe Trên Công Nông</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/wlenqrk1fkiymyacizped/Nonstop-VIP-2024-C-c-ph-m-X-i-......-Huynh-i-C-ng-i-c-nh-Dj-kenbjn-remix.mp3?rlkey=70l4g0yrz08rjjov7m882y9tx&st=d48lee9z&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HL3NyN3y/IMG-1583.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop - VIP 2024 Cực Phẩm - Huynh đệ ơi Cùng đi cảnh - VietMix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/34377u2tugfktoj59rvki/_5H-QU-N-M-T-L-I-TH.mp3?rlkey=yyvqnxcgkit5euf4yuyvxvtp8&st=kuvwhawk&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/6pJFJnyy/IMG-1585.jpg" alt="Bài Hát Khác">
+        <span class="title">5H - QUÊN MỘT LỜI THỀ</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/sfmlsvjxx0mu0h221bry1/XICALO-NH-C-C-8X-9X.mp3?rlkey=adofcisf8zvtpvzgb9m2z1mas&st=kcqa0kvl&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/65gt78TX/IMG-1479.jpg" alt="Bài Hát Khác">
+        <span class="title">NHẠC CỔ Việt Mix 8X 9X</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6qyfdwr32p4df45l6i04h/NONSTOP-XICALO-2023-QUANG-NGUYEN.mp3?rlkey=tlaco5mbbj7yd3a5py3sjrpol&st=zq5kroee&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/jSHms27v/IMG-1472.jpg" alt="Bài Hát Khác">
+        <span class="title">NONSTOP Vietmix - 2023</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/yjpguz1dfmfsv3byuqfvk/Nonstop-C-B-Nh-Nh-nh-Vol2-Full-Bay-ph-ng-Dj-kenbjn-remix-Nonstop-C-B-Nh-Nh-nh-Vol2-Full-Bay-ph-ng-Dj-kenbjn-remix.mp3?rlkey=74hldr2ab5mvyfmyoicvv3c6m&st=rm8yovrv&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/R0v8qm1m/IMG-1457.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop - Cô Bé Nhí Nhảnh Vol2 - Full Bay phòng</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/5mfmbkd9m0sotfslok0dv/MIXSET_-t_25tr_Vi-t_Ho-_Tri_-n_kh-ch_h-ng.mp3?rlkey=m3vpz7k7so3aj6ipv8c4hibvd&st=gnixkkbn&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/bJgqdLSC/IMG-1432.jpg" alt="Bài Hát Khác">
+        <span class="title">MIXSET Full Việt Hoà</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/kn3m9l6ey1nphclk4abr2/DJ-TILO-Booking-Show-0987537997-4h-Vui-N-n-Nh-DJ-TILO-Nh-c-t.mp3?rlkey=xzw9966iw6a4yeh28hmzkdz6d&st=bfy3lz05&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HnFRL7zv/IMG-1390.jpg" alt="Bài Hát Khác">
+        <span class="title">4h Vui Nên Nhé</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/atksrh5fdey6ue5jrnz5z/unknown-Nst_vietmix_anh-d-t-em-i-bay.mp3?rlkey=cmqk2085mrv2wspua5ehcessu&st=nux7bo2f&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HscCCTzP/IMG-1245.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop Vietmix Anh Dắt Em Đi Cảnh</span>
+			</div>
+			         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/qfg9dhiatsurtjl31hzgs/DAT-SET-ME-FREE-FULL-River-remix.mp3?rlkey=i83l0xgdgyvcf23s27r5ejuef&st=d9inhi0n&&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/XYHcfBbg/IMG-1397.jpg" alt="Bài Hát Khác">
+        <span class="title">SET ME FREE FULL</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/c12545va4vcnqwp9vorod/t_C-u_V-ng_Khuy-t_Quang_Hi-u_MixHPPD_QU-C_CA_.mp3?rlkey=htaonajj5m44x8k62xwd5xocj&st=t9hmhdmu&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wjTQRcSv/IMG-1398.jpg" alt="Bài Hát Khác">
+        <span class="title">Cầu Vồng Khuyết</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/hp3cvp4p25g8n29u98wk9/Dat-Em-G-i-M-a-Quoc-Duy-x-Tuan-Kiet-Full.mp3?rlkey=0ukefmkcb154hkc077ydaoytk&st=enhd7e71&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/5NJ3bMg8/IMG-1399.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Gái Mưa - Mix Full</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/gxb2jrujg6xr7y10v7apo/DAT-DANG-SAU-DEM-TOI-X-ZINZ-REMIX.mp3?rlkey=imi90t3l0wkoze4prr6c4hc8o&st=9mjm6qec&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Wb774fYC/IMG-1400.jpg" alt="Bài Hát Khác">
+        <span class="title">Đằng Sau Đêm Tối Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/opj8jdrd0cy8viaslwv1e/BAC-Wolves.mp3?rlkey=bz1mstgtdq7uxsi9axvmdd4nn&st=cp8nczcu&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/tRW5Kg3X/IMG-1401.jpg" alt="Bài Hát Khác">
+        <span class="title">Wolves</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/whye3d28urg0x5fn11eer/BAC-SE-KHONG-CON-NUA.mp3?rlkey=2vzdwo0hg4p5mqbkr6zq2nxa1&st=wpy8vtk3&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/W1cdXpRf/IMG-1377.jpg" alt="Bài Hát Khác">
+        <span class="title">Sẽ Không Còn Nữa Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/rfeolhkafptg69s791nud/BAC-MoonLight-Shadow.mp3?rlkey=8x54tlmzeog0ze89xbkgv52dh&st=ndbgnz9r&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/vT14ScHC/IMG-1457.jpg" alt="Bài Hát Khác">
+        <span class="title">Moonlight Shadow</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/xyudaw5hh5evop3ry4clb/BAC-Love-To-Be-Loved-By-You.mp3?rlkey=5qitkq9w6lgv5iofon83hvbax&st=vidn13t7&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/BbdjW4jb/IMG-1458.jpg" alt="Bài Hát Khác">
+        <span class="title">Love To Be Loved By You</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/ht5f9mqfbin2zkwktt46k/M-Sao-Cung-Duoc-2023.mp3?rlkey=sjbfy6ccnc3vs37e7khk99hws&st=0mnrtmce&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/gc5XLqgp/IMG-1459.jpg" alt="Bài Hát Khác">
+        <span class="title">Sao Cũng Được Mix 2023</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/9rvywa0uw7frn0pkev6aj/M-HERE-WITH-U-D-ng-Antony.mp3?rlkey=qgcehk37sn6za0wuu1u7vn51x&st=yp6j1yym&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/qM3tshF3/IMG-1460.jpg" alt="Bài Hát Khác">
+        <span class="title">HERE WITH U</span>
+				</div>
+            <div class="music-item" data-src="https://www.dropbox.com/scl/fi/jfgtorgbe4coqwmnk4x9t/Xin-loi-vi-da-xuat-hien.mp3?rlkey=75qzo8vopj37b407ovb17h5ca&st=g2zoyift&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/PJpMJtcM/IMG-1396.jpg" alt="Bài Hát Khác">
+        <span class="title">Xin Lỗi Vì Anh Đã Xuất Hiện</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/z7oipft2t7ji2b5bas26e/XA-ANH-CHAM-CHAM-THOI.mp3?rlkey=5c830eianba2hzvicpnpb1hff&st=vt48ty9e&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/xCjxfVns/IMG-1371.jpg" alt="Bài Hát Khác">
+        <span class="title">Xa Anh Chậm Thôi</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/llct9pwtlcdleq4nshb4n/WREK-ME.mp3?rlkey=bv4acwtrpndx78ijil8xm4vcd&st=550qsfcx&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/SKf1bxF2/IMG-1372.jpg" alt="Bài Hát Khác">
+        <span class="title">WREK ME</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/3ryhow5ez0qv375qvzf4p/Whistle-Remix.mp3?rlkey=xhh3aom621d4emfsl7yadgmvx&st=wrjap740&raw=1" data-img="https://i.postimg.cc/MTssX3Gz/IMG-1373.jpg">
+        <img src="https://i.postimg.cc/MTssX3Gz/IMG-1373.jpg" alt="Bài Hát Khác">
+        <span class="title">Whistle Remix</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/kiuo7snmwd5j1olsjfqcn/V-Tinh-Mix-C-c-C-ng.mp3?rlkey=1r9d1733z7ylnmca6r61wgauu&st=4drhlvil&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/k5mYHtZP/IMG-1374.jpg" alt="Bài Hát Khác">
+        <span class="title">Vô Tình Mĩ Cực Căng</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/35zif6f0ysh2fkzd1dwge/V-t-M-a.mp3?rlkey=hgh9mj6fuaw7h0pslsu1h9igk&st=ghknyece&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/yYDG3K9t/IMG-1375.jpg" alt="Bài Hát Khác">
+        <span class="title">Vết Mưa</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6y3cb2zkyki5u0mual12b/Ves-3-1-DIEU-BASS.mp3?rlkey=jx3v7b1icbe2a7ycbo1tz9xz5&st=wd80amtp&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/DwsY5cxc/IMG-1376.jpg" alt="Bài Hát Khác">
+        <span class="title">Vre 3 - Mix Cực Căng</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/xyd81s30n41smmi97fy63/Tu-m-China.mp3?rlkey=l80wujdk0my7mjr25jxs0rp1u&st=gqwx7rgi&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Pr0Rm7Qx/IMG-1377.jpg" alt="Bài Hát Khác">
+        <span class="title">Tuý Âm 中國</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/u6kplq3j08gwamn84aoej/Remix-Hot-TikTok.mp3?rlkey=y7o9gr6kbxmesa789aimv08fp&st=d3tmgmry&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/1RCTzXgD/IMG-1378.jpg" alt="Bài Hát Khác">
+        <span class="title">Còn Buồn Không Em</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/xgz40b1t905td4rqplg6m/Boy-Ph.mp3?rlkey=tz3dio0l8fxy30zj1ocy0r5gz&st=t4q2497e&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Gt5Sgg0X/IMG-1379.jpg" alt="Bài Hát Khác">
+        <span class="title">Nhạc Cho Boy Phố - Mix Cực Bá</span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/fzqa2wjx7nb6rjq0ppvfd/E-i-E.mp3?rlkey=d2zl2fobunaoepcsx7yru0fx1&st=tjhi4m15&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wMvGV8rt/IMG-1380.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Ơi Em À Remix </span>
+    </div>
+    <div class="music-item" data-src="https://www.dropbox.com/scl/fi/n08p7vxsyia240c5rjujj/NST-C-NG-H-N-L-C-M-C-M-CH-I-KUNN-MIX.mp3?rlkey=gp4tfg7r536evael9gg41pun8&st=gmhs3c7u&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/cHTzw4Fy/IMG-1381.jpg" alt="Bài Hát Khác">
+        <span class="title">NST - Căng Hơn Lúc Mẹ Cầm Chổi</span>
+    </div>
+		   <div class="music-item" data-src="https://www.dropbox.com/scl/fi/ffdixou27wfzu51xo8uhz/Pod-Chill-Bee-Vol-4-Remix.mp3?rlkey=bs5pv78v4n56gwycrb36813ru&st=7ucx1an6&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/9McSDqtY/IMG-1382.jpg" alt="Bài Hát Khác">
+        <span class="title">Pod Chill Bee Vol 4 Remix</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/qucspterkf6u0841c5hs0/M-L-n-R-y-C-c-C-ng.mp3?rlkey=ha6b1nly4yhpdx55b1h4wstt7&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/wBXZxkJB/IMG-1383.jpg" alt="Bài Hát Khác">
+        <span class="title">Mẹ Lên Núi Cực Căng</span>
+			</div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/11r68c1iocvjoklm1ac3k/6H-Bay-C-ng-Th-i-Ho-ng.mp3?rlkey=87e2a5gh0z7nq9k8yy03fb2o7&st=38ưuddw2&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/q7VWdFNY/IMG-1384.jpg" alt="Bài Hát Khác">
+        <span class="title">6H Bay Cùng Thái Hoàng</span>
+			</div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/wrsziu5aphxrps8dnzy3n/2H-BAY-TRONG-TH-NH-PH-HOUSE-VOL2.mp3?rlkey=gftnew1qhvpldlzvzmlzryfod&st=03qpu7iq&raw=1" data-img="https://www.dropbox.com/scl/fi/wrsziu5aphxrps8dnzy3n/2H-BAY-TRONG-TH-NH-PH-HOUSE-VOL2.mp3?rlkey=gftnew1qhvpldlzvzmlzryfod&st=03qpu7iq&raw=1">
+        <img src="https://i.postimg.cc/52FDTJ2L/IMG-1385.jpg" alt="Bài Hát Khác">
+        <span class="title">2H Bay Trong Thành Phố HOUSE Vol2</span>
+    </div>  
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/c7edmhkgbaxj8t74ivksc/Bay-Trong-Bas-New-MDM-2023.mp3?rlkey=a0omurerx8ebymtx575v11ipn&st=gzsnybhr&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/4N0rWysX/IMG-1386.jpg" alt="Bài Hát Khác">
+        <span class="title">Bay Trong Bar New MDM 2023</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/1ujtgi1vrxqk7phyukaq3/C-n-Th-ng-Em-Nh-ng-H-m-Nay-T-i-Bu-n.mp3?rlkey=1726900pto28re5eu3c00f2au&st=bynutu4f&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/CL53Ckyv/IMG-1387.jpg" alt="Bài Hát Khác">
+        <span class="title">Còn Thương Em Nhưng Ngày Hôm Nay Tôi Buồn</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/tf2i2vpkdx14fpq6dhu1x/Em-G-Cho-Anh-C-p-K.mp3?rlkey=k4z8qw94awc8044tva2ga39i6&st=rzztkyvg&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/7hYpWT5Z/IMG-1388.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Gẻ Cho Anh Cập Kê Mix </span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/6tfz5jd3vc4h80zyf0sa6/EM-V-N-CH-A-V.mp3?rlkey=n0nw0b2wq9qml4b3vhik9rktp&st=p6wkm0v3&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/tRB0VDcZ/IMG-1389.jpg" alt="Bài Hát Khác">
+        <span class="title">Em Vẫn Chưa Về</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/d5nllmyiurbzprnbdznk7/Gi-t-S-ng-Tr-n-M-M-t.mp3?rlkey=a5g5758xygbrbehdtc4mpx4d1&st=90gsjwcr&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/hGVWznFc/IMG-1390.jpg" alt="Bài Hát Khác">
+        <span class="title">Giọt Sương Trên Mí Mắt</span>
+    </div>
+		<div class="music-item" data-src="https://www.dropbox.com/scl/fi/etc4cfk92qmqvbwq48hbz/Hai-Ch-T-ng.mp3?rlkey=80s9hcnxvtihc5osx2ink6eu2&st=thovstfg&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/HxHGbNH5/IMG-1391.jpg" alt="Bài Hát Khác">
+        <span class="title">Hai Chữ Đã Từng</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/xj29wkij3headqu37r27f/Li-u-Thu-c-Cho-Tr-i-Tim.mp3?rlkey=qu0weeakcaf2dk8sq7baj5fhi&st=00hnf35h&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/ydTMjTYG/IMG-1392.jpg" alt="Bài Hát Khác">
+        <span class="title">Liều Thuốc Cho Trái Tim</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/1h0kc2i6uwf0kb426s4rr/Mang-Ch-ng-Ver-China-2021.mp3?rlkey=otmqne7ja498pt3qaad7v7dwa&st=p4kadrru&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/SRTwFN97/IMG-1393.jpg" alt="Bài Hát Khác">
+        <span class="title">Mang Chủng Ver China 2021</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/l9cqeuhz6f6dpvoafa3lh/Me-Gusta.mp3?rlkey=zxb1tqscx685arrkkllzs2mmr&st=wfyiaf0h&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Nj9wtTpy/IMG-1394.jpg" alt="Bài Hát Khác">
+        <span class="title">Me Gusta</span>
+    </div>
+		  <div class="music-item" data-src="https://www.dropbox.com/scl/fi/gmgbu1f1h5zllzane5zty/Nghe-i-R-i-Bu-n-VOL-2.mp3?rlkey=5iugwpf50duq7491ly58glss0&st=2glfy80b&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/vZJwZBN0/IMG-1395.jpg" alt="Bài Hát Khác">
+        <span class="title">Nghe Đi Rồi Buồn Vol 2</span>
+			</div>
+							 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/cnr319ggwmeh3moz6y7dg/TU-NAY-CHUNG-TA-KO-AI-NO-AI-PH.mp3?rlkey=a45tzbyp6chxje3lw02o73onh&st=osg7pvf0&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/GpQfs07H/IMG-1413.jpg" alt="Bài Hát Khác">
+        <span class="title">Từ Nay Chúng Ta Không Ai Nợ Ai</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/05x76tqwv34wtzkf208jk/TINH-YEU-MANG-THEO-DVT-FULL.mp3?rlkey=ipydi63gs2ug3ww9z8yrrvk0w&st=h9ua9m1n&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/3RxcXLV9/IMG-1414.jpg" alt="Bài Hát Khác">
+        <span class="title">Tình Yêu Mang Theo</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/n45a4sus3oe878d45z4sq/T-t-Ho-c-Kh-ng-L-G-C-Hi-u-B-o-Mix.mp3?rlkey=qrwdtbxm8pcfsh2yb4fsss2wt&st=vwt49h5k&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Hk1vZWFr/IMG-1415.jpg" alt="Bài Hát Khác">
+        <span class="title">Tất Hoặc Không Là Gì Cả Hiếu Béo Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/wodymfaniutwl8mm1zww0/STRANGER-IN-MY-HOUSE-MAIEMM.mp3?rlkey=enn98i3atwpylewa24m17nwx6&st=z8opwsls&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/3RfbnXHh/IMG-1416.jpg" alt="Bài Hát Khác">
+        <span class="title">STRANGER IN MY HOUSE</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/h55cdufwedft5h2oo1s2s/SAO-EM-M-T-D-I-GA-TAY.mp3?rlkey=o8zkljf1kva76ai5qiz24cbfs&st=py8264jj&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/cLf20tf7/IMG-1417.jpg" alt="Bài Hát Khác">
+        <span class="title">Sao Em Mất ...</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/k1ptb2h9ghiaz135xmxq7/R-i_em_s-_g-p_m-t_ch-ng_trai_kh-c_FT_Rap_Ken_Alone_HPBD.mp3?rlkey=ols82qcap3chaq75qlpc3rh3f&st=sxm8vbli&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/k59Z4My0/IMG-1418.jpg" alt="Bài Hát Khác">
+        <span class="title">Rồi Em Sẽ Gặp Một Chàng Trai Khác</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/lszrd3q0ptquscxrjlos5/QU-KH-C-A-ANH-L-NI-M-AU-DHT.mp3?rlkey=62hr0ipv7r4lmk9og68ypm76j&st=0f2357p8&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/pXw4wJ5X/IMG-1419.jpg" alt="Bài Hát Khác">
+        <span class="title">QUÁ KHỨ CỦA ANH LÀ NIỀM ĐAU</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/k1hz5wnqy8ke8fbbbbmjh/m-Em-c-Kh-ng.mp3?rlkey=qj0ufy8hvohi3ts3ban9awrd8&st=cg8za7ca&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/DyJRpMZM/IMG-1421.jpg" alt="Bài Hát Khác">
+        <span class="title">Ôm Em Được Không</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/yx47p53he2ssb3t2ccj3o/3H-H-n-Thai-Hoang-New-MDM-2023-Dj-Thai-Hoang.mp3?rlkey=3nnsiogo9t0aoe78beyc0s0gt&st=9eviv949&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/y6rwPHVR/IMG-1422.jpg" alt="Bài Hát Khác">
+        <span class="title">3H Hơn Thái Hoàng New MDM 2023 </span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/b0nvlg8ieimghrshtd2xn/Weng-Liyou.mp3?rlkey=d5tweu0k1vvrx89mb6pa7cign&st=5yni4r6l&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/PxS00GYB/IMG-1423.jpg" alt="Bài Hát Khác">
+        <span class="title">Weng Liyou</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/jxxtvmjmm4d1cae34to0a/CMSN-Hi-u-b-o-MIX.mp3?rlkey=3afz05actq7q6ebuqoconjki9&st=b79wvelf&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/Fz1w4Px1/IMG-1424.jpg" alt="Bài Hát Khác">
+        <span class="title">MÊ LINH NGÀY VẮNG EM VOL 1 - Hiếu Béo</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/e11w044xzqxmrdhqcrhac/t_L-i_-i_Cho_Nhau_ft_Rap_T-o_Hi-u_b-o_Mix_online_audio_converter.mp3?rlkey=pz55nu1ssydrni2npt2ng066v&st=qynaobwr&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/2yJM84HG/IMG-1425.jpg" alt="Bài Hát Khác">
+        <span class="title">Đặt Lối Đi Cho Nhau ft Rap Táo - Hiếu Béo Remix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/827h7m3i5tc4k2zhc02mb/m_S-u_Ch-ng_-c_G-_Feat_Rap_Hi-u_b-o_Mix_Qu-c_Ca_online_audio.mp3?rlkey=fa7hocdpo37fitny1zq50gbm8&st=8693rn0i&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/qRJ9mBhs/IMG-1426.jpg" alt="Bài Hát Khác">
+        <span class="title">Đậm Sâu Chẳng Được Gì Feat Rap - Hiếu Béo Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/nwiyz6m0il5x1d58rqb1v/R-t_L-u_R-i_M-i_Kh-c_ft_Xa_Em_Ch-m_Th-i_Hi-u_b-o_mix.mp3?rlkey=2n6e8mvhe4zkevn5651gilexu&st=kdrqd5bh&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/PqjGwQdF/IMG-1427.jpg" alt="Bài Hát Khác">
+        <span class="title">Rất Lâu Rồi Mới Khóc ft Xa Em Chậm Thôi Hiếu Béo Mix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/q10lbx1m9orbn392xn9s2/R-u_M-ng_Ho-_Ng-i_D-ng_Ft_Kh-c_M-t_M-nh_Hi-u_b-o.mp3?rlkey=5qhh4aeqsxa8cl6h9s2irwh9l&st=ewwd0ory&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/CxDT5Qpq/IMG-1428.jpg" alt="Bài Hát Khác">
+        <span class="title">Rượu Mừng Hoá Người Dưng Ft Khóc Một Mình - Hiếu Béo</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/nd7zmbi5z12tjflfjzzio/Th-_Th-i_Ft_L-n_Cu-i_Hi-u_b-o_Mix_online_audio_converter_com.mp3?rlkey=fcjytu4xom0em51olnyzwvyyk&st=i7skk0gf&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/mrNvN1DZ/IMG-1429.jpg" alt="Bài Hát Khác">
+        <span class="title">Thì Thôi Ft Lần Cuối - Hiếu béo Mix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/y49qzzx3y8eiixr1sao2d/Yeu-1-Nguoi-Co-Le-Haozi.mp3?rlkey=ue3cwk90enllz8x4ak6ltkrdf&st=jjriple8&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/VLJcQN74/IMG-1430.jpg" alt="Bài Hát Khác">
+        <span class="title">Yêu Một Người Có Lẽ Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/4e6hxsc0pq7xrn6m799iv/M.t-LakHouse-Rmx-2024.mp3?rlkey=9nul3kadhyufx7cmywvcly632&st=69oyo6zj&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/bN4fzjWP/IMG-1431.jpg" alt="Bài Hát Khác">
+        <span class="title">Đánh Cắp Trái Tim (LakHouse Remix 2024)</span>
+			</div>
+		 <div class="music-item" data-src="https://www.dropbox.com/scl/fi/lb1cv0mqi3s4im86v6k78/DJ-LakHouse-Rmx-2024.mp3?rlkey=0t9emkqdap78qjwmxlchgma2p&st=m1aa9pr1&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/qBbd5KGz/IMG-1432.jpg" alt="Bài Hát Khác">
+        <span class="title">Tình Yêu Phải Gượng Ép - Dj LakHouse Remix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/h0urify9gtcbyihu0ncsh/_-Dj-_LakHouse_Rmx_2023.mp3?rlkey=ew0al4uv80e4armsz96e5n7yy&st=3ywqnyke&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/cCbytqJQ/IMG-1433.jpg" alt="Bài Hát Khác">
+        <span class="title">Điều Tôi Mong Chờ Không Phải Là</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/fuarfwca2a3ce45zv0u8l/HT.mp3?rlkey=4wblv36pd2vs8lzkg94lrm0x2&st=q4qlsphq&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/2y6N5jCk/IMG-1434.jpg" alt="Bài Hát Khác">
+        <span class="title">Hạnh Phúc Bên Em Mix</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/m9tg5brz259hfbzq79uji/M.t-LakHouse-Rmx-2024.mp3?rlkey=c9h70nms5dhzqokjmwak1tc8l&st=mdya82x4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/nznt6Y5Q/IMG-1435.jpg" alt="Bài Hát Khác">
+        <span class="title">Hạnh Phúc Bên Em (Mouse Remix 2024)</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/s4vro2wt03q0cv6ub9vzy/Thuy-n-Kh-ng-B-n-Nguyen-Vu-Mix-2024.mp3?rlkey=dqtuqn5qu4ueb1q3wlz1gq3dv&st=3m1ceo2x&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/R07BsbPB/IMG-1436.jpg" alt="Bài Hát Khác">
+        <span class="title">Thuyền Không Bến</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/qwziuanwof1aespxh2uin/Nonstop-full-China.mp3?rlkey=ml3g2lnjbpzbi7am7sgm7rqil&st=n9t82snt&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/XJx03BS1/IMG-1437.jpg" alt="Bài Hát Khác">
+        <span class="title">Nonstop Full China Cực Cháy</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/1kgme64hh0ucl4qkon7df/Luot-Song-Dap-May.mp3?rlkey=otrgnj8mdci1mxhfr03onyslo&st=ugk4vkhs&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/TYTv19Y7/IMG-1438.jpg" alt="Bài Hát Khác">
+        <span class="title">Lướt Sóng Đạp Mây</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/u90ky0kludw7pm1rd30sf/L-u-i-T-nh-i-Haozi-Mix.mp3?rlkey=9lv71l4o8xllnlfvppx1hjxsi&st=mvk3osc4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/59BMfG1Q/IMG-1439.jpg" alt="Bài Hát Khác">
+        <span class="title">Lâu Đài Tình Ái Mix</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/ou2753py31xc9hfv1lihx/G-nh-M-S.Lex-H-i-V-B-ch.mp3?rlkey=tz3fpznmfdxgn5t4vdmjblgc0&st=qucwc1xg&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/x83rgkg3/IMG-1440.jpg" alt="Bài Hát Khác">
+        <span class="title">Gánh Mẹ</span>
+			</div>
+         <div class="music-item" data-src="https://www.dropbox.com/scl/fi/h7mjwe3veyhub8u1jy5mh/CT-Lai-Nho-Em-Roi-Day.mp3?rlkey=6ygfk0mm4bhkav45orarszz97&st=9erx9re4&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/sDKdhhMV/IMG-1441.jpg" alt="Bài Hát Khác">
+        <span class="title">Lại Nhớ Em Rồi Đấy</span>
+			</div>
+			<div class="music-item" data-src="https://www.dropbox.com/scl/fi/4uh6e005vf2f485dho34z/Cafe-Kh-ng-ng-NTC-x-B-NY-remix.mp3?rlkey=36l2nojgt30r6yerg2oly0q92&st=dlvrw4ud&raw=1" data-img="https://via.placeholder.com/150?text=B%C3%A0i+H%C3%A1t+Kh%C3%A1c">
+        <img src="https://i.postimg.cc/mZNKvHNQ/IMG-1442.jpg" alt="Bài Hát Khác">
+        <span class="title">Cà Phê Không Đường Mix</span>
+        </div>
+    </div>
+
+    <!-- Phần Now Playing -->
+    <div class="now-playing" id="nowPlaying">
+        <img id="nowPlayingImg" src="" alt="Now Playing">
+        <div class="song-info">
+            <div class="song-details">
+                <span id="nowPlayingTitle">Tên Bài Hát</span><br>
+                <span id="nowPlayingArtist">Nghệ Sĩ</span>
+            </div>
+            <i class="fa fa-play-circle" id="playPauseBtn"></i>
+        </div>
+        <div class="progress-bar" id="progressBar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="time-info">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; Copyright belongs to Quốc Chiến.
+            <a href="mailto:lequocchien2709@icloud.com">Liên hệ với chúng tôi</a>
+ <div class="social-icons">
+    <a href="https://www.facebook.com/QuocChien2709?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://youtube.com/@quocchienn?si=0MSMWN8fAYCmD9uz" target="_blank"><i class="fab fa-youtube"></i></a>
+		<a href="https://youtube.com/@goodmusicflyingaround?si=uBDgLdg0d2eTntFS" target="_blank"><i class="fab fa-youtube"></i></a>
+    <a href="https://quocchienn.github.io/Shadowrocket-Unlock-Pro-Apps-2/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+	  <a href="https://quocchienn.github.io/ipastore.vn.io.co/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </footer>
+    <audio id="audio"></audio>
+<script>
+    const musicItems = document.querySelectorAll('.music-item');
+const nowPlaying = document.getElementById('nowPlaying');
+const nowPlayingImg = document.getElementById('nowPlayingImg');
+const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+const nowPlayingArtist = document.getElementById('nowPlayingArtist');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const audio = document.getElementById('audio');
+const progressBar = document.getElementById('progressBar');
+const progress = document.getElementById('progress');
+const currentTimeLabel = document.getElementById('currentTime');
+const durationLabel = document.getElementById('duration');
+const searchInput = document.getElementById('searchInput'); // Lấy ô nhập tìm kiếm
+let isPlaying = false;
+let isDragging = false;
+
+// Xử lý khi nhấp vào một bài hát
+musicItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const audioSrc = item.getAttribute('data-src');
+        const imgSrc = item.querySelector('img').src; // Lấy ảnh từ <img>
+        const songTitle = item.querySelector('.title').textContent;
+
+        nowPlayingImg.src = imgSrc;
+        nowPlayingTitle.textContent = songTitle;
+        nowPlayingArtist.textContent = 'Nghệ Sĩ'; // Thay đổi nếu có thông tin nghệ sĩ
+        audio.src = audioSrc;
+
+        audio.play(); // Phát nhạc ngay
+        isPlaying = true;
+        updatePlayPauseIcon();
+        nowPlaying.style.display = 'flex'; // Hiển thị phần now playing
+        updateProgressBar();
+    });
+});
+
+// Xử lý sự kiện tìm kiếm
+searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase();
+    musicItems.forEach(item => {
+        const title = item.querySelector('.title').textContent.toLowerCase();
+        if (title.includes(query)) {
+            item.style.display = 'flex'; // Hiển thị bài hát nếu khớp
+        } else {
+            item.style.display = 'none'; // Ẩn bài hát nếu không khớp
+        }
+    });
+});
+
+// Xử lý sự kiện click nút Play/Pause
+playPauseBtn.addEventListener('click', () => {
+    if (isPlaying) {
+        audio.pause();
+    } else {
+        audio.play();
+    }
+});
+
+// Cập nhật biểu tượng khi phát hoặc dừng nhạc
+audio.addEventListener('play', () => {
+    isPlaying = true;
+    updatePlayPauseIcon();
+});
+
+audio.addEventListener('pause', () => {
+    isPlaying = false;
+    updatePlayPauseIcon();
+});
+
+// Cập nhật biểu tượng nút Play/Pause
+function updatePlayPauseIcon() {
+    if (isPlaying) {
+        playPauseBtn.classList.remove('fa-play-circle');
+        playPauseBtn.classList.add('fa-pause-circle');
+    } else {
+        playPauseBtn.classList.remove('fa-pause-circle');
+        playPauseBtn.classList.add('fa-play-circle');
+    }
+}
+
+// Cập nhật thanh tiến độ khi nhạc phát
+audio.addEventListener('timeupdate', updateProgressBar);
+
+// Cập nhật thời lượng khi tệp âm thanh được tải
+audio.addEventListener('loadedmetadata', () => {
+    durationLabel.textContent = formatTime(audio.duration);
+});
+
+// Xử lý kéo và thả trên thanh tiến độ
+progressBar.addEventListener('mousedown', startDragging);
+progressBar.addEventListener('touchstart', startDragging);
+document.addEventListener('mousemove', drag);
+document.addEventListener('touchmove', drag);
+document.addEventListener('mouseup', stopDragging);
+document.addEventListener('touchend', stopDragging);
+
+function startDragging(e) {
+    isDragging = true;
+    updateProgress(e);
+}
+
+function drag(e) {
+    if (isDragging) {
+        updateProgress(e);
+    }
+}
+
+function stopDragging() {
+    isDragging = false;
+}
+
+// Cập nhật tiến độ khi kéo thanh tiến độ
+function updateProgress(e) {
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left || e.touches[0].clientX - rect.left; // Hỗ trợ touch
+    const width = rect.width;
+    const percentage = Math.max(0, Math.min(1, offsetX / width));
+    progress.style.width = `${percentage * 100}%`;
+    audio.currentTime = percentage * audio.duration;
+    currentTimeLabel.textContent = formatTime(audio.currentTime);
+}
+
+// Cập nhật thanh tiến độ dựa trên thời gian hiện tại
+function updateProgressBar() {
+    const percentage = (audio.currentTime / audio.duration) * 100;
+    progress.style.width = `${percentage}%`;
+    currentTimeLabel.textContent = formatTime(audio.currentTime);
+}
+
+// Định dạng thời gian (mm:ss)
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+</script>
+</body>
+</html>
